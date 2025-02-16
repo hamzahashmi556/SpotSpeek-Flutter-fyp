@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "348507936607",
+    "project_id": "spotspeek-5fd06",
+    "storage_bucket": "spotspeek-5fd06.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:348507936607:android:6c19f9cd2e3a6ad133c8ea",
+        "android_client_info": {
+          "package_name": "com.example.spot_speek"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvE3CzlE5HI2_5CVYwpXR6P7tsAi4vuyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+<string>We need your location to fetch nearby posts.</string>
+<key>NSLocationAlwaysUsageDescription</key>
+<string>We need your location to fetch nearby posts even when the app is in the background.</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>We need your location for better user experience.</string>
 </dict>
 </plist>
