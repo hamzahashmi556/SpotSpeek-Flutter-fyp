@@ -1,8 +1,6 @@
-// presentation/viewmodels/auth_viewmodel.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:spot_speek/data/repositories/auth_repository.dart';
-// import 'package:spot_speek/domain/repositories/auth_repository.dart';
+import 'package:spot_speek/domain/repositories.dart';
 
 class AuthViewModel with ChangeNotifier {
   final AuthRepository _authRepository;
@@ -15,26 +13,34 @@ class AuthViewModel with ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
-  Future<void> login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
+    var isSuccess = false;
     _isLoading = true;
     notifyListeners();
 
     try {
       await _authRepository.login(email, password);
       _errorMessage = '';
+      _isLoading = false;
+      isSuccess = true;
     } on FirebaseAuthException catch (e) {
       _errorMessage = e.message ?? 'Login failed';
+      _isLoading = false;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = e.toString();
     } finally {
       _isLoading = false;
     }
     notifyListeners();
+    return isSuccess;
   }
 
   Future<void> signUp(String email, String password) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _authRepository.signUp(email, password);
+      await _authRepository.signup(email, password);
       _errorMessage = '';
     } on FirebaseAuthException catch (e) {
       _errorMessage = e.message ?? 'Signup failed';

@@ -1,17 +1,20 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:spot_speek/data/datasources/post_data_source.dart';
 import 'package:spot_speek/data/models/post_model.dart';
+import 'package:spot_speek/domain/repositories.dart';
 
-class PostRepository {
+class PostRepositoryImpl extends PostRepository {
   final PostDataSource _postDataSource;
 
-  PostRepository(this._postDataSource);
+  PostRepositoryImpl(this._postDataSource);
 
-  Stream<List<PostModel>> getNearbyPosts(Position position, double radius) {
+  @override
+  Stream<List<PostModel>> fetchNearbyPosts(Position position, double radius) {
     return _postDataSource.fetchNearbyPosts(position, radius);
   }
 
-  Future<void> createPost(String message, Position position) {
+  @override
+  Future<void> addPost(String message, Position position) async {
     return _postDataSource.addPost(message, position);
   }
 }

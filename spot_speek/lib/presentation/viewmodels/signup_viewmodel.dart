@@ -1,12 +1,13 @@
 import 'dart:ffi';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:spot_speek/data/repositories/auth_repository.dart';
-import 'package:spot_speek/data/repositories/user_repository.dart';
+import 'package:spot_speek/data/repositories/auth_repository_impl.dart';
+import 'package:spot_speek/data/repositories/user_repository_impl.dart';
 
 class SignUpViewModel extends ChangeNotifier {
-  final AuthRepository _authRepository;
-  final UserRepository _userRepository;
+  final AuthRepositoryImpl _authRepository;
+  final UserRepositoryImpl _userRepository;
 
   SignUpViewModel(this._authRepository, this._userRepository);
 
@@ -20,12 +21,20 @@ class SignUpViewModel extends ChangeNotifier {
     notifyListeners();
     var isSuccess = false;
     try {
-      final user = await _authRepository.signUp(email, password);
-      if (user != null) {
-        await _userRepository.createUser(
-            uid: user.uid, email: email, name: name);
-      }
+      final user = await _authRepository.signup(email, password);
       isSuccess = true;
+    } on FirebaseAuthException catch (e) {
+      print("Error: ${e.code}");
+    } catch (e) {
+      print("Error: $e");
+      _errorMessage = e.toString();
+    }
+    try {
+      var user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await _userRepository.createUser(user.uid, email, name);
+        isSuccess = true;
+      }
     } catch (e) {
       print("Error: $e");
       _errorMessage = e.toString();

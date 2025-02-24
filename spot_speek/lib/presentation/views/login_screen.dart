@@ -66,9 +66,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   const CircularProgressIndicator()
                 else
                   CustomButton(
-                      onPressed: () {
-                        authViewModel.login(_emailController.text.trim(),
+                      onPressed: () async {
+                        var isSuccess = await authViewModel.login(
+                            _emailController.text.trim(),
                             _passwordController.text.trim());
+                        if (isSuccess) {
+                          Navigator.pushReplacementNamed(
+                              context, AppRoutes.home);
+                        }
                       },
                       text: 'Login'),
                 if (authViewModel.errorMessage.isNotEmpty)

@@ -1,11 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:spot_speek/data/models/post_model.dart';
-import 'package:spot_speek/data/repositories/post_repository.dart';
+import 'package:spot_speek/data/models/user_model.dart';
+import 'package:spot_speek/domain/repositories.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final PostRepository _postRepository;
+  final UserRepository _userRepository;
+  StreamSubscription<UserModel?>? _userSubscription;
+  UserModel? currentUser = null;
+  // final
 
   TextEditingController messageController = TextEditingController();
 
@@ -16,8 +23,9 @@ class HomeViewModel extends ChangeNotifier {
 
   Stream<List<PostModel>>? _postsStream;
 
-  HomeViewModel(this._postRepository) {
+  HomeViewModel(this._postRepository, this._userRepository) {
     _initialize();
+    _listenToUserUpdates();
   }
 
   Stream<List<PostModel>> get postsStream => _postsStream ?? Stream.value([]);
@@ -27,7 +35,6 @@ class HomeViewModel extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
       _selectedPosition = await Geolocator.getCurrentPosition();
-      ;
       _updateStream();
     } catch (e) {
       _isLoading = false;
@@ -35,13 +42,24 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
+  void _listenToUserUpdates() {
+    _userSubscription = _userRepository.listenToMyUser().listen((user) {
+      currentUser = user;
+      notifyListeners();
+    });
+  }
+
   void _updateStream() {
     if (_selectedPosition != null) {
-      _postsStream =
-          _postRepository.getNearbyPosts(_selectedPosition!, 5.0); // 5KM Radius
+      _posts = [];
+      _postsStream = _postRepository.fetchNearbyPosts(
+          _selectedPosition!, 5.0); // 5KM Radius
 
       _postsStream?.listen(
         (fetchedPosts) {
+          fetchedPosts.sort((a, b) {
+            return Comparable.compare(b.createdAt, a.createdAt);
+          });
           _isLoading = false;
           _posts = fetchedPosts;
           notifyListeners();
@@ -100,7 +118,7 @@ class HomeViewModel extends ChangeNotifier {
   void sendMessage() async {
     if (messageController.text.isEmpty || _selectedPosition == null) return;
 
-    await _postRepository.createPost(
+    await _postRepository.addPost(
       messageController.text,
       _selectedPosition!,
     );

@@ -9,14 +9,14 @@ class PostModel {
   final String content;
   final GeoFirePoint location;
   final String userId;
-  final DateTime createdAt = DateTime.now();
+  final DateTime createdAt;
 
   PostModel({
     String? id,
     required this.content,
     required this.location,
     required this.userId,
-    DateTime? createdAt,
+    required this.createdAt,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {

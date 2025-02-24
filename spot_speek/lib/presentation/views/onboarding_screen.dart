@@ -22,7 +22,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingModel> onboardingData = [
     OnboardingModel(
-        title: "Welcome to SpotSeek",
+        title: "Welcome to Spot Speek",
         description: "Find the best spots around you."),
     OnboardingModel(
         title: "Explore New Places",

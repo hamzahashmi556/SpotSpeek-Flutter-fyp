@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^2.32.0
-  firebase_auth: ^4.16.0
+  firebase_auth: ^4.15.0
   cloud_firestore: ^4.4.4
   geolocator: ^13.0.2
   geoflutterfire2: ^2.3.15
@@ -42,6 +42,11 @@ dependencies:
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
   flutter_map: ^8.0.0
+  # firebase_storage: ^11.6.5
+  image_picker: ^1.1.2
+  firebase_auth_platform_interface: ^7.3.0
+  flutter_launcher_icons: ^0.14.3
+  intl: ^0.18.1 
   
 
 dev_dependencies:

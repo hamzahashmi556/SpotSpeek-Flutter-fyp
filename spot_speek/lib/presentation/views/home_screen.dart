@@ -1,14 +1,19 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spot_speek/presentation/viewmodels/home_viewmodel.dart';
 import 'package:spot_speek/data/models/post_model.dart';
 import 'package:spot_speek/presentation/views/map_screen.dart';
+import 'package:spot_speek/presentation/views/profile_screen.dart';
+import 'package:spot_speek/presentation/widgets/remote_image_downloader.dart';
+import 'package:spot_speek/presentation/widgets/post_card.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
     final posts = vm.posts;
+    final user = vm.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -16,24 +21,16 @@ class HomeScreen extends StatelessWidget {
             Text("Spot Speek", style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
-            icon:
-                Icon(Icons.map, color: Theme.of(context).colorScheme.onPrimary),
-            onPressed: () async {
-              final newLocation = await Navigator.push(
+            icon: RemoteImageDownloader(imageUrl: user?.profilePicture),
+            onPressed: () {
+              Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => MapScreen(vm.currentCoordinates),
-                ),
+                MaterialPageRoute(builder: (context) => ProfileScreen()),
               );
-
-              if (newLocation != null) {
-                vm.updateLocation(newLocation);
-              }
             },
           ),
         ],
       ),
-
       body: Column(
         children: [
           // Posts List
@@ -42,30 +39,12 @@ class HomeScreen extends StatelessWidget {
                 ? Center(child: CircularProgressIndicator.adaptive())
                 : posts.isEmpty
                     ? _emptyState()
-                    : _listView(posts),
+                    : _listView(posts, vm.isLoading),
           ),
 
-          // Message TextField
-          _bottomTextField(vm),
+          // Message Input Field with Animated Button
+          _bottomTextField(vm, context),
         ],
-      ),
-
-      // Floating Action Button for Map
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final newLocation = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MapScreen(vm.currentCoordinates),
-            ),
-          );
-
-          if (newLocation != null) {
-            vm.updateLocation(newLocation);
-          }
-        },
-        icon: Icon(Icons.map),
-        label: Text("Map View"),
       ),
     );
   }
@@ -85,15 +64,18 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Bottom TextField with Modern Styling
-  Widget _bottomTextField(HomeViewModel vm) {
+  // Message Input Field with Animated Button
+  Widget _bottomTextField(HomeViewModel vm, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.all(10),
       child: Row(
         children: [
+          // TextField Expanded
           Expanded(
             child: TextField(
               controller: vm.messageController,
+              onChanged: (text) =>
+                  vm.notifyListeners(), // Update UI on text change
               decoration: InputDecoration(
                 hintText: "Write a message...",
                 prefixIcon: Icon(Icons.message_outlined),
@@ -107,10 +89,37 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           SizedBox(width: 10),
-          FloatingActionButton(
-            onPressed: vm.sendMessage,
-            child: Icon(Icons.send),
-            mini: true,
+
+          // Animated Map/Send Button
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            child: vm.messageController.text.isEmpty
+                ? FloatingActionButton(
+                    key: ValueKey("mapButton"),
+                    onPressed: () async {
+                      final newLocation = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              MapScreen(vm.currentCoordinates),
+                        ),
+                      );
+
+                      if (newLocation != null) {
+                        vm.updateLocation(newLocation);
+                      }
+                    },
+                    child: Icon(Icons.map),
+                    mini: true,
+                  )
+                : FloatingActionButton(
+                    key: ValueKey("sendButton"),
+                    onPressed: vm.sendMessage,
+                    child: Icon(Icons.send),
+                    mini: true,
+                  ),
           ),
         ],
       ),
@@ -118,27 +127,12 @@ class HomeScreen extends StatelessWidget {
   }
 
   // ListView with Material 3 Design
-  Widget _listView(List<PostModel> posts) {
+  Widget _listView(List<PostModel> posts, bool isLoading) {
     return ListView.builder(
       padding: EdgeInsets.all(10),
       itemCount: posts.length,
       itemBuilder: (context, index) {
-        return Card(
-          elevation: 1,
-          margin: EdgeInsets.symmetric(vertical: 6),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.blueAccent,
-              child: Icon(Icons.person, color: Colors.white),
-            ),
-            title: Text(posts[index].content,
-                style: TextStyle(fontWeight: FontWeight.w600)),
-            subtitle:
-                Text("Posted just now", style: TextStyle(color: Colors.grey)),
-          ),
-        );
+        return PostCard(post: posts[index], isLoading: isLoading);
       },
     );
   }

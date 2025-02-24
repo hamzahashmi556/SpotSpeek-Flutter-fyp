@@ -32,7 +32,8 @@ class PostDataSource {
       final PostModel post = PostModel(
           content: content,
           location: GeoFirePoint(position.latitude, position.longitude),
-          userId: uid);
+          userId: uid,
+          createdAt: DateTime.now());
       final json = post.toJson();
 
       await _firestore.collection('posts').add(json);

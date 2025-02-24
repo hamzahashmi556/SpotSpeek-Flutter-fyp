@@ -6,17 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spot_speek/core/constants/app_colors.dart';
 import 'package:spot_speek/core/constants/routes.dart';
-import 'package:spot_speek/data/repositories/auth_repository.dart';
+import 'package:spot_speek/data/repositories/auth_repository_impl.dart';
 // import 'package:spot_speek/domain/repositories/auth_repository.dart';
 import 'package:spot_speek/firebase_options.dart';
 import 'package:spot_speek/core/constants/app_providers.dart';
-import 'package:spot_speek/presentation/views/create_account.dart';
 import 'package:spot_speek/presentation/views/home_screen.dart';
 import 'package:spot_speek/presentation/views/onboarding_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // await FirebaseAuth.instance.signInAnonymously();
   //await FirebaseAuth.instance.signOut();
   // await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
   // FirebaseUIManager.configure();
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
               displayMedium: TextStyle(color: Colors.brown),
               displayLarge: TextStyle(color: themeColor))),
       home: StreamBuilder<User?>(
-        stream: context.read<AuthRepository>().authStateChanges,
+        stream: context.read<AuthRepositoryImpl>().authStateChanges,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
